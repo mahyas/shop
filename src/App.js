@@ -11,52 +11,52 @@ import { setCurrentUser } from './redux/user/user.actions';
 import { createStructuredSelector } from 'reselect';
 import CheckoutPage from './pages/checkout/checkout.component';
 import { selectCurrentUser } from './redux/user/user.selectors';
-import {selectCollectionsForPreview} from './redux/shop/shop.selectors'
 
 class App extends React.Component {
   unsubscribeFromAuth = null;
 
-  componentDidMount(){
-    const {setCurrentUser, collectionsArray} = this.props;
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth =>{
-      if(userAuth){
-        const userRef = await createUserProfileDocument(userAuth)
-        userRef.onSnapshot(snapshot => {
+  componentDidMount() {
+    const { setCurrentUser } = this.props;
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+
+        userRef.onSnapshot(snapShot => {
           setCurrentUser({
-            id: snapshot.id,
-            ...snapshot.data()
+            id: snapShot.id,
+            ...snapShot.data()
           });
         });
       }
+
       setCurrentUser(userAuth);
-      addCollectionAndDocuments('collections', collectionsArray)
-      });
+    });
   }
 
-
-  componentWillUnmount(){
+  componentWillUnmount() {
     this.unsubscribeFromAuth();
   }
-  
-  render () {
+
+  render() {
     return (
       <div>
-      <Header/>
+        <Header />
         <Switch>
           <Route exact path='/' component={HomePage} />
           <Route path='/shop' component={ShopPage} />
           <Route exact path='/checkout' component={CheckoutPage} />
-          <Route 
+          <Route
             exact
-            path='/signin' 
-            render={() => 
-              this.props.currentUser ?(
+            path='/signin'
+            render={() =>
+              this.props.currentUser ? (
                 <Redirect to='/' />
-              ): (
-               <SigninSignupPage />
+              ) : (
+                <SigninSignupPage />
               )
             }
-            />
+          />
         </Switch>
       </div>
     );
@@ -64,8 +64,7 @@ class App extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser,
-  collectionsArray: selectCollectionsForPreview
+  currentUser: selectCurrentUser
 });
 
 const mapDispatchToProps = dispatch => ({
